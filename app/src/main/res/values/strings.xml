@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_title">USB Serial Example</string>
+    <string name="app_name">VernierCaliperSerialRead</string>
+    <string name="refreshing">Refreshing...</string>
+    <string name="textBtnRTS">RTS - Request To Send</string>
+    <string name="textBtnDTR">DTR - Data Terminal Ready</string>
+    <string name="textBtnUpload">One by One Upload</string>
+    <string name="textBtnAvrg">Calc. Average</string>
+    <string-array name="spinner_list">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+        <item>D</item>
+        <item>E</item>
+        <item>F</item>
+        <item>G</item>
+        <item>H</item>
+        <item>I</item>
+        <item>J</item>
+    </string-array>
+</resources>
