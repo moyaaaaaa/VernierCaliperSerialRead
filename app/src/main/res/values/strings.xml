@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_title">USB Serial Example</string>
+    <string name="app_title">Vernier Caliper Serial Read</string>
     <string name="app_name">VernierCaliperSerialRead</string>
     <string name="refreshing">Refreshing...</string>
     <string name="textBtnRTS">RTS - Request To Send</string>

@@ -23,9 +23,24 @@ public class MySoap extends AsyncTask<String, Integer, Boolean> {
     private URL url;
     private static final String host = "202.15.110.21";
     private static final String file = "/axis2/services/FIAPStorage";
-    private static final String pointId1 = "http://j.kisarazu.ac.jp/PlantFactory/VernierCaliperTest/Value";
-    private static final String pointId2 = "http://j.kisarazu.ac.jp/PlantFactory/VernierCaliperTest/Area";
-    private static final String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns2:dataRQ xmlns:ns2=\"http://soap.fiap.org/\"><transport xmlns=\"http://gutp.jp/fiap/2009/11/\"><body><point id=\"%s\"><value time=\"%s\">%s</value></point><point id=\"%s\"><value time=\"%s\">%s</value></point></body></transport></ns2:dataRQ></soapenv:Body></soapenv:Envelope>";
+    private static final String pointId = "http://j.kisarazu.ac.jp/PlantFactory/VernierCaliperTest/Value";
+    private static final String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"><soapenv:Body><ns2:dataRQ xmlns:ns2=\"http://soap.fiap.org/\"><transport xmlns=\"http://gutp.jp/fiap/2009/11/\"><body><point id=\"%s\"><value time=\"%s\">%s</value></point></body></transport></ns2:dataRQ></soapenv:Body></soapenv:Envelope>";
+    /*
+    <?xml version="1.0" encoding="UTF-8"?>
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+        <soapenv:Body>
+            <ns2:dataRQ xmlns:ns2="http://soap.fiap.org/">
+                <transport xmlns="http://gutp.jp/fiap/2009/11/">
+                    <body>
+                        <point id="%s">
+                            <value time="%s">%s</value>
+                        </point>
+                    </body>
+                </transport>
+            </ns2:dataRQ>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    */
 
     public MySoap() {
 
@@ -36,7 +51,25 @@ public class MySoap extends AsyncTask<String, Integer, Boolean> {
         return sendData(data[0], data[1]);
     }
 
+
+    /**
+     * areaからpointIDを自動生成して送信するラッパー
+     * @param data
+     * @param area
+     * @return
+     */
     public boolean sendData(String data, String area) {
+        return sendMessage(data, pointId + "/" + area);
+    }
+
+
+    /**
+     * 引数のpointId宛にdataを送信する
+     * @param data
+     * @param _pointId
+     * @return
+     */
+    public boolean sendMessage(String data, String _pointId) {
         try {
             url = new URL("http", host, file);
             httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -57,7 +90,7 @@ public class MySoap extends AsyncTask<String, Integer, Boolean> {
             //送信するxml生成
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+09:00'");
             String stringDate = simpleDateFormat.format(new Date()).toString();
-            String content = String.format(body, pointId1, stringDate, data, pointId2, stringDate, area);
+            String content = String.format(body, _pointId, stringDate, data);
 
             printWriter.print(content);
             printWriter.close();

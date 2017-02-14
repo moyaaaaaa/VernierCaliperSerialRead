@@ -205,7 +205,6 @@ public class SerialConsoleActivity extends Activity {
                 mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
             }
         });
-
     }
 
 
@@ -248,7 +247,7 @@ public class SerialConsoleActivity extends Activity {
             } catch (IOException e) {
                 // Ignore.
             }
-            //sPort = null;
+            sPort = null;
         }
         nfcAdapter.disableForegroundDispatch(this);
         //finish();
@@ -348,7 +347,7 @@ public class SerialConsoleActivity extends Activity {
      * Starts the activity, using the supplied driver instance.
      *
      * @param context
-     * @param driver
+     * @param port
      */
     static void show(Context context, UsbSerialPort port) {
         sPort = port;
