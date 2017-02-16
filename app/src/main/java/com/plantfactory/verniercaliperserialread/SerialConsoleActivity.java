@@ -203,9 +203,11 @@ public class SerialConsoleActivity extends Activity {
                 }else {
                     //upload
                     String parsedValue = String.format("%.2f", average);
-                    new MySoap().execute(parsedValue, spinner.getSelectedItem().toString());
+                    String area = spinner.getSelectedItem().toString();
+                    new MySoap().execute(parsedValue, area);
 
                     //show
+                    mDumpTextView.append("Area:" + area + "mm\n");
                     mDumpTextView.append("Average:" + parsedValue + "mm\n\n");
                     mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
                     Toast.makeText(getApplicationContext(), "データをアップロードしました", Toast.LENGTH_SHORT).show();
@@ -241,6 +243,10 @@ public class SerialConsoleActivity extends Activity {
                 spinner.setSelection(i);
             }
         }
+
+        //message
+        String area = spinner.getSelectedItem().toString();
+        Toast.makeText(getApplicationContext(), "エリア" + area + "に変更しました" , Toast.LENGTH_SHORT).show();
     }
 
 
