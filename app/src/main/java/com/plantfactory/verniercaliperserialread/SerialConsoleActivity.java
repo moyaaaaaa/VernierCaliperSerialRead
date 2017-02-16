@@ -197,14 +197,19 @@ public class SerialConsoleActivity extends Activity {
                 Arrays.fill(avrgBuffer, 0);
                 avrgCnt = 0;
 
-                //upload
-                String parsedValue = String.format("%.2f", average);
-                new MySoap().execute(parsedValue, spinner.getSelectedItem().toString());
+                //validation
+                if(Double.isNaN(average)) {
+                    Toast.makeText(getApplicationContext(), "データのアップロードに失敗しました", Toast.LENGTH_SHORT).show();
+                }else {
+                    //upload
+                    String parsedValue = String.format("%.2f", average);
+                    new MySoap().execute(parsedValue, spinner.getSelectedItem().toString());
 
-                //show
-                mDumpTextView.append("Average:" + parsedValue + "mm\n\n");
-                mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
-                Toast.makeText(getApplicationContext(), "データをアップロードしました", Toast.LENGTH_SHORT).show();
+                    //show
+                    mDumpTextView.append("Average:" + parsedValue + "mm\n\n");
+                    mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
+                    Toast.makeText(getApplicationContext(), "データをアップロードしました", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
