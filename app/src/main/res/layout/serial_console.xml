@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/textBtnAvrg"
-        android:id="@+id/AvrgButton" />
+        android:id="@+id/avrgButton" />
 
     <View
         android:id="@+id/separator2"
@@ -61,20 +61,27 @@
         android:layout_height="1dip"
         android:background="#eeeeee" />
 
-    <ScrollView
-        android:id="@+id/demoScroller"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top">
+        android:id="@+id/averageTextView"
+        android:textSize="38sp"
+        android:hint="ここに平均値が表示されます" />
 
-        <TextView
-            android:id="@+id/consoleText"
-            android:textIsSelectable="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:typeface="monospace"
-            android:textSize="32dp"
-            android:textStyle="bold" />
-    </ScrollView>
+    <View
+        android:id="@+id/separator3"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/demoTitle"
+        android:layout_height="1dip"
+        android:background="#eeeeee" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:divider="#FFFFFF"
+        android:footerDividersEnabled="true"
+        android:headerDividersEnabled="true"
+        android:dividerHeight="1dp" />
 
 </LinearLayout>
