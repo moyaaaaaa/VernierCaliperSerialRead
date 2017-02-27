@@ -6,7 +6,8 @@
     <string name="textBtnRTS">RTS - Request To Send</string>
     <string name="textBtnDTR">DTR - Data Terminal Ready</string>
     <string name="textBtnUpload">One by One Upload</string>
-    <string name="textBtnAvrg">Calc. Average</string>
+    <string name="textBtnAvrg">平均値を計算する</string>
+    <string name="textBtnDelete">Delete</string>
     <string-array name="spinner_list">
         <item>A</item>
         <item>B</item>

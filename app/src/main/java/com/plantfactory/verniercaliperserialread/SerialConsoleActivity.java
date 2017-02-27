@@ -35,10 +35,11 @@ import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ScrollView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +49,8 @@ import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -64,7 +66,8 @@ import com.plantfactory.verniercaliperserialread.NfcReader;
 public class SerialConsoleActivity extends Activity {
     private final String TAG = SerialConsoleActivity.class.getSimpleName();
     private String stringBuffer = "";
-    private double[] avrgBuffer = new double[1000];
+    //private double[] avrgBuffer = new double[1000];
+    private ArrayList<Double> avrgBuffer = new ArrayList<Double>();
     private int avrgCnt = 0;
 
     /**
@@ -80,8 +83,8 @@ public class SerialConsoleActivity extends Activity {
     private static UsbSerialPort sPort = null;
 
     private TextView mTitleTextView;
-    private TextView mDumpTextView;
-    private ScrollView mScrollView;
+    private TextView averageTextView;
+    private ListView listView;
     private CheckBox chkDTR;
     private CheckBox chkRTS;
     private CheckBox chkUpload;
@@ -92,6 +95,7 @@ public class SerialConsoleActivity extends Activity {
     private Ringtone ringtone;
     private NfcAdapter nfcAdapter;
     private NfcReader nfcReader;
+    private MyListArrayAdapter listArrayAdapter;
 
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
     private SerialInputOutputManager mSerialIoManager;
@@ -120,23 +124,19 @@ public class SerialConsoleActivity extends Activity {
                             stringBuffer += new String(data);
                         }
                     }else{
-                        //stringBuffer += new String(data);
                         stringBuffer = stringBuffer.replaceFirst("01A", "");
                         double dtmp = Double.parseDouble(stringBuffer);
                         String parsedValue = String.format("%.2f", dtmp);
 
                         //show
-                        mDumpTextView.append(parsedValue + "mm\n\n");
-                        mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
+                        addListView(parsedValue + "mm");
 
                         //アップロード処理
                         if(chkUpload.isChecked()) { //逐次アップロード
                             new MySoap().execute(parsedValue, spinner.getSelectedItem().toString());
                         }
-                        avrgBuffer[avrgCnt] = dtmp;
-                        avrgCnt++;
+                        avrgBuffer.add(dtmp);
                         stringBuffer = "";
-
 
                         if(ringtone != null){
                             if(ringtone.isPlaying()) ringtone.stop();
@@ -154,12 +154,12 @@ public class SerialConsoleActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.serial_console);
         mTitleTextView = (TextView) findViewById(R.id.demoTitle);
-        mDumpTextView = (TextView) findViewById(R.id.consoleText);
-        mScrollView = (ScrollView) findViewById(R.id.demoScroller);
+        averageTextView = (TextView) findViewById(R.id.averageTextView);
+        listView = (ListView) findViewById(R.id.listView);
         chkDTR = (CheckBox) findViewById(R.id.checkBoxDTR);
         chkRTS = (CheckBox) findViewById(R.id.checkBoxRTS);
         chkUpload = (CheckBox) findViewById(R.id.checkBoxUpload);
-        AvrgButton = (Button) findViewById(R.id.AvrgButton);
+        AvrgButton = (Button) findViewById(R.id.avrgButton);
         spinner = (Spinner)findViewById(R.id.spinner);
         uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         ringtone = RingtoneManager.getRingtone(getApplicationContext(), uri);
@@ -184,7 +184,8 @@ public class SerialConsoleActivity extends Activity {
             }
         });
 
-        //Button処理
+
+        //平均値算出処理
         AvrgButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -193,9 +194,10 @@ public class SerialConsoleActivity extends Activity {
                 for(double v: avrgBuffer){
                     sum += v;
                 }
-                double average = sum / avrgCnt;
-                Arrays.fill(avrgBuffer, 0);
-                avrgCnt = 0;
+                double average = sum / avrgBuffer.size();
+                avrgBuffer.clear();
+                listArrayAdapter.clear();
+                listView.setAdapter(listArrayAdapter);
 
                 //validation
                 if(Double.isNaN(average)) {
@@ -207,13 +209,39 @@ public class SerialConsoleActivity extends Activity {
                     new MySoap().execute(parsedValue, area);
 
                     //show
-                    mDumpTextView.append("Area:" + area + "\n");
-                    mDumpTextView.append("Average:" + parsedValue + "mm\n\n");
-                    mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
+                    averageTextView.setText("Average:" + parsedValue + "mm");
                     Toast.makeText(getApplicationContext(), "データをアップロードしました", Toast.LENGTH_LONG).show();
                 }
             }
         });
+
+        //リストの要素を削除する処理
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                avrgBuffer.remove(position);
+
+                //listViewを更新
+                ArrayList<String> stringBuffer = new ArrayList<String>();
+                for(Double item :avrgBuffer) {
+                    stringBuffer.add(String.format("%.2f", item));
+                }
+                CustomListData customListData = new CustomListData();
+                listArrayAdapter.clear();
+                for(String string :stringBuffer) {
+                    customListData.setTextData(string + "mm");
+                    listArrayAdapter.add(customListData);
+                }
+                listView.setAdapter(listArrayAdapter);
+                Toast.makeText(getApplicationContext(), "データを削除しました", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //ListView設定
+        CustomListData customListData = new CustomListData();
+        List<CustomListData> customListView = new ArrayList<CustomListData>();
+        listArrayAdapter = new MyListArrayAdapter(this, 0, customListView, R.layout.serial_console, R.layout.list_data);
+        listView.setAdapter(listArrayAdapter);
     }
 
 
@@ -344,17 +372,6 @@ public class SerialConsoleActivity extends Activity {
         theTextView.append(msg);
     }
 
-    /**
-     * Show recieve data
-     *
-     * @param data
-     */
-    private void updateReceivedData(byte[] data) {
-        final String message = "Read " + data.length + " bytes: \n"
-                + HexDump.dumpHexString(data) + "\n\n";
-        mDumpTextView.append(message);
-        mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
-    }
 
     /**
      * Starts the activity, using the supplied driver instance.
@@ -370,11 +387,14 @@ public class SerialConsoleActivity extends Activity {
     }
 
     /**
-     * ScrollViewに表示
+     * ListViewに表示する項目を追加する
      * @param string
      */
-    private void showScrollView(String string){
-        mDumpTextView.append(string);
-        mScrollView.smoothScrollTo(0, mDumpTextView.getBottom());
+    private void addListView(String string) {
+        CustomListData customListData = new CustomListData();
+        customListData.setTextData(string);
+        listArrayAdapter.add(customListData);
+        listView.setAdapter(listArrayAdapter);
     }
+
 }
